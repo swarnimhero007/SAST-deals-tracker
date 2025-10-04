@@ -310,6 +310,8 @@ def create_price_chart(df, symbol):
         st.error(f"Error creating chart: {str(e)}")
         return None
 
+# ...existing code...
+
 # Analyze stocks using Perplexity API
 def analyze_stocks_with_perplexity(df, num_stocks, additional_instructions, api_key, start_date, end_date):
     """
@@ -401,13 +403,20 @@ Please use data from:
 Provide detailed analysis with specific numbers and actionable insights for each stock."""
 
         # Initialize Perplexity client using OpenAI-compatible API
-        # Remove any proxy or extra arguments that might cause issues
-        client = OpenAI(
-            api_key=api_key,
-            base_url="https://api.perplexity.ai",
-            timeout=60.0,  # Add timeout instead
-            max_retries=2   # Add retries
-        )
+        # Simplified initialization to avoid proxy/httpx issues
+        try:
+            client = OpenAI(
+                api_key=api_key,
+                base_url="https://api.perplexity.ai"
+            )
+        except TypeError:
+            # Fallback for older OpenAI SDK versions
+            import httpx
+            client = OpenAI(
+                api_key=api_key,
+                base_url="https://api.perplexity.ai",
+                http_client=httpx.Client(timeout=60.0)
+            )
         
         # Make API call
         completion = client.chat.completions.create(
@@ -437,6 +446,8 @@ Provide detailed analysis with specific numbers and actionable insights for each
         import traceback
         error_details = traceback.format_exc()
         return None, f"Error analyzing stocks: {str(e)}\n\nDetails:\n{error_details}"
+
+# ...existing code...
 
 # Generate PDF report
 def generate_pdf_report(analysis_data, start_date, end_date, charts_data):
@@ -1209,4 +1220,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
