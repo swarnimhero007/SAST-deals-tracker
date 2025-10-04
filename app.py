@@ -401,9 +401,12 @@ Please use data from:
 Provide detailed analysis with specific numbers and actionable insights for each stock."""
 
         # Initialize Perplexity client using OpenAI-compatible API
+        # Remove any proxy or extra arguments that might cause issues
         client = OpenAI(
             api_key=api_key,
-            base_url="https://api.perplexity.ai"
+            base_url="https://api.perplexity.ai",
+            timeout=60.0,  # Add timeout instead
+            max_retries=2   # Add retries
         )
         
         # Make API call
@@ -431,7 +434,9 @@ Provide detailed analysis with specific numbers and actionable insights for each
         return analysis_data, None
         
     except Exception as e:
-        return None, f"Error analyzing stocks: {str(e)}"
+        import traceback
+        error_details = traceback.format_exc()
+        return None, f"Error analyzing stocks: {str(e)}\n\nDetails:\n{error_details}"
 
 # Generate PDF report
 def generate_pdf_report(analysis_data, start_date, end_date, charts_data):
@@ -1204,3 +1209,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
